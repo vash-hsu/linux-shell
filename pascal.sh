@@ -24,6 +24,7 @@ usage
 exit 0
 fi
 
+typeset -A Tab
 
 # x, y, left, right
 handle()
@@ -33,33 +34,34 @@ handle()
   left=$3
   right=$4
   sum=$(($left+$right))
-  if [[ ( $left == 0 ) || ( $right == 0 ) ]]
+  #echo $x, $y, $left, $right
+  if [[ $x == 0 && $y == 0 ]]
+  then
+    echo zip 1.zip $target
+  fi
+  if [[ $left -eq 0 || $right -eq 0 ]]
   then
     return
   fi
-  if [ $x -lt $(($y+1)) ]
+  if [[ $x -ge $y && $left -gt $right ]]
   then
     return
   fi
-  echo $x, $y, $left, $right
   if [ $left != $right ]
   then
     echo zip $sum.zip $left.zip $right.zip
-    echo
   else
     echo zip $sum.zip $left.zip
     echo ln -s $left.zip _$right.zip
     echo zip -u $sum.zip _$right.zip
     echo rm _$right.zip
-    echo
   fi
 }
 
 
-typeset -A Tab
-
-# for [ i=0;i<=$n;i++ ]
-for i in $(seq 0 $n)
+Tab[0,0]=1
+handle 0 0 1 0
+for i in $(seq 1 $n)
 do
   Tab[$i,0]=1
   ${array_name[index]}
@@ -76,15 +78,17 @@ do
   handle $i  $i  1  0
 done
 
+summary()
+{
+  for i in $(seq 0 $n)
+  do
+    for j in $(seq 0 $i)
+    do
+      echo -n ${Tab[$i,$j]} " "
+    done
+    echo
+  done
+  echo
+}
 
-# for ((i=0;i<=$n;i++))
-for i in $(seq 0 $n)
-do
-# for((j=0;j<=$i;j++))
-for j in $(seq 0 $i)
-do
-  echo -n ${Tab[$i,$j]} " "
-done
-echo
-done
-echo
+# summary
